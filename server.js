@@ -16,12 +16,16 @@ await fastify.register(fastifyCircuitBreaker);
 
 fastify.get("/", {
     preHandler: fastify.circuitBreaker(),
-    handler: async function (request, reply) {
-        setTimeout(() => {
-            reply.send(
-                req.query.error ? new Error("kaboom") : { hello: "world" },
-            );
-        }, req.query.delay || 0);
+    handler: async function (req, reply) {
+        const delay = req.query.delay || 0;
+
+        await new Promise((resolve) => setTimeout(resolve, delay));
+
+        if (req.query.error) {
+            throw new Error("kaboom"); // En async, lanzamos el error
+        }
+
+        return { hello: "world" }; // En async, retornamos el objeto directamente
     },
 });
 
