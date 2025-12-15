@@ -21,23 +21,33 @@ fastify.get("/", {
 
         await new Promise((resolve) => setTimeout(resolve, delay));
 
+        // if /?error=true is provided then an error will be triggered
         if (req.query.error) {
-            throw new Error("kaboom"); // En async, lanzamos el error
+            throw new Error("kaboom");
         }
 
-        return { hello: "world" }; // En async, retornamos el objeto directamente
+        return { hello: "world" }; // Return a successful response
     },
 });
 
-fastify.post("/names", async function handler(request, reply) {
-    const { name } = request.body;
-    await fastify.redis.set(name, name);
-    return { message: `Name ${name} saved` };
+fastify.post("/names", {
+    preHandler: fastify.circuitBreaker(),
+    handler: async function (request, reply) {
+        const { name } = request.body;
+        await fastify.redis.set(name, name);
+
+        console.log(`Name ${name} saved`);
+
+        return { message: `Name ${name} saved` };
+    },
 });
 
-fastify.get("/names", async function handler(request, reply) {
-    const names = await fastify.redis.keys("*");
-    return { names };
+fastify.get("/names", {
+    preHandler: fastify.circuitBreaker(),
+    handler: async function (request, reply) {
+        const names = await fastify.redis.keys("*");
+        return { names };
+    },
 });
 
 // Run the server!
