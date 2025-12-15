@@ -1,6 +1,6 @@
 services:
     app:
-        image: "jonatanfd/redis-fastify:latest"
+        image: "redis-fastify:latest"
         ports:
             - "3000:3000"
         environment:

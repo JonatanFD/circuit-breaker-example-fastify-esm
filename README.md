@@ -2,7 +2,7 @@
 
 ## Docker
 ```shell
-docker build -t redis-fastify .
+docker build -t redis-fastify:latest .
 ```
 
 ## Redis
