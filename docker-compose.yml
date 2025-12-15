@@ -4,7 +4,6 @@ services:
         ports:
             - "3000:3000"
         environment:
-            # En docker, el host es el nombre del servicio ('redis'), no 'localhost'
             - REDIS_HOST=redis
         depends_on:
             - redis
