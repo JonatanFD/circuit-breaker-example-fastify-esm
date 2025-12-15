@@ -1,24 +1,20 @@
-# Usamos una versión LTS de Node ligera (Alpine Linux)
+# Use a lightweight Node version (Alpine Linux)
 FROM node:20-alpine
 
-# Establecemos el directorio de trabajo dentro del contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copiamos primero los archivos de definición de dependencias
-# Esto aprovecha el caché de Docker: si no cambias dependencias, no se reinstalan
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Instalamos las dependencias
+# Install dependencies
 RUN npm install
 
-# Copiamos el resto del código fuente
+# Copy the rest of the source code
 COPY . .
 
-# Si usas TypeScript, aquí deberías agregar el paso de build, por ejemplo:
-# RUN npm run build
-
-# Exponemos el puerto que usa Fastify
+# Expose the port that Fastify uses
 EXPOSE 3000
 
-# Comando para iniciar la aplicación
+# Command to start the application
 CMD ["npm", "start"]
