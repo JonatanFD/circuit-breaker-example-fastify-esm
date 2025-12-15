@@ -1,4 +1,5 @@
 // Import the framework and instantiate it
+import fastifyCircuitBreaker from "@fastify/circuit-breaker";
 import fastifyRedis from "@fastify/redis";
 import Fastify from "fastify";
 
@@ -6,14 +7,22 @@ const fastify = Fastify({
     logger: true,
 });
 
-fastify.register(fastifyRedis, {
+await fastify.register(fastifyRedis, {
     host: process.env.REDIS_HOST || "127.0.0.1",
     port: 6379,
 });
 
-// Declare a route
-fastify.get("/", async function handler(request, reply) {
-    return { hello: "world" };
+await fastify.register(fastifyCircuitBreaker);
+
+fastify.get("/", {
+    preHandler: fastify.circuitBreaker(),
+    handler: async function (request, reply) {
+        setTimeout(() => {
+            reply.send(
+                req.query.error ? new Error("kaboom") : { hello: "world" },
+            );
+        }, req.query.delay || 0);
+    },
 });
 
 fastify.post("/names", async function handler(request, reply) {
@@ -25,12 +34,6 @@ fastify.post("/names", async function handler(request, reply) {
 fastify.get("/names", async function handler(request, reply) {
     const names = await fastify.redis.keys("*");
     return { names };
-});
-
-fastify.delete("/names/:name", async function handler(request, reply) {
-    const { name } = request.params;
-    await fastify.redis.del(name);
-    return { message: `Name ${name} deleted` };
 });
 
 // Run the server!

@@ -1,6 +1,7 @@
 {
     "type": "module",
     "dependencies": {
+        "@fastify/circuit-breaker": "^4.0.2",
         "@fastify/redis": "^7.1.0",
         "fastify": "^5.6.2"
     }
